@@ -1,0 +1,207 @@
+#####using clipped reads, fastuniq to remove duplicates
+#####checking/installing conda for virtual environment, creating two pythonenvironments
+which conda
+conda create -n snakemake_python2_env python=2.7
+#update yes
+conda create -n snakemake_python3_env python=3
+#Package plan for installation in environment /home/rene/anaconda/envs/snakemake_python3_env:
+#update yes
+####activate the environment and installing snakemake etc
+source activate snakemake_python3_env
+#discarding /home/rene/anaconda/bin from PATH
+#prepending /home/rene/anaconda/envs/snakemake_python3_env/bin to PATH
+conda config --add channels bioconda
+#certificate of conda homepage expired, finding alternative ways to install software
+pip search snakemake
+pip install snakemake
+pip install cookiecutter
+#information to cookiecutter: a template for directory structures in binning: https://github.com/EnvGen/cookiecutter-binning-project
+####using git to keep track with Johannes' corrections, git add for including data into update, git pull for updating included
+git status # shows uploaded and tracking status of current git folder, folders can be automatically tracked or manually updated with
+git add config_sbatch.json
+git add config.json
+git add README.md
+git status
+git commit -m "tracking all files" #"cleaning repository", syncing
+git pull origin master #(from snakemake_workflow!!) to update by external changes
+####metagenomic assembly with megahit
+#checking snakemake script for assembly (from the metag_glyph_workflow!!)
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --list-target-rules
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --dry run
+mkdir finished_reads #from metag_glyph_workflow level
+echo $PATH #to see if all program directories are listed
+vim ~/.bash_profile
+#add following line
+export PATH=/proj/b2010008/bin:$PATH
+#wrong order: proj/b2010008/bin path should come last
+#then update $PATH
+source ~/.bash_profile
+echo $PATH
+#check megahit version
+megahit -version
+which Snakefile_sbatch.py
+symbolic links to read files
+tmux #session will stay logged in
+ctrl +b, then c #new tab in tmux session for jobinfo etc
+ctrl +b, n #next
+ctrl +b, p #previous
+tmux a #regain tmux session, must be logged in to the login node (ssh milou2)
+#slurm.out for current status
+less /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/
+#live update
+tail -f /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/final.contigs.fa-slurm.out
+assemstats
+
+#splitting assembly in smaller fractions to enable parallel annotation of contigs
+
+source activate snakemake_python2_env
+conda search biopython
+conda install biopython
+source activate snakemake_python3_env
+cd /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/snakemake-workflows/
+git pull #origin master is the default folder to pull from
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --dryrun assembly/megahit_coassembly/meta-sensitive/parts/contigs.0.fasta ##for trial
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 assembly/megahit_coassembly/meta-sensitive/parts/contigs.0.fasta
+#contigs are now in several files divided
+#using prokka for annotation
+snakemake --dryrun --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff
+snakemake --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff
+#replace after successful dryrun :
+"--dryrun"  --> "--cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120"
+
+squeue -u rene --start #estimates starting time point, but considers all jobs working and full time usage
+
+##scroll in Tmux using Shift+MouseWheel if you have the "set-window-option -g mode-mouse on" feature enabled in your ".tmux.conf" file
+
+##interactive session only start once!
+
+interactive -A b2010008 -p 8 -t 3:00:00
+module load bioinfo-tools Metaxa2
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.0.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig0
+
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.1.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig1
+
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.2.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig2
+##connected by ";" to run one ofter each other
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.3.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig3;
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.4.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig4;
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.5.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig5;
+metaxa2 --plus T -i /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contigs.6.fasta -o /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/contig6
+##creates graphs for hits, summary file, taxonomy file and the actual found fasta sequences!
+scp -r rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/*.* .##copy files from uppmax (in new shell)
+
+
+source activate snakemake_python2_env #checking required software
+pip freeze #all installed software on env #biopython there?
+source activate snakemake_python3_env
+#start from metag_glyph_workflow:
+snakemake --dryrun --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff concoct/meta-sensitive_coassembly/input_kallisto/concoct_inputtableR.tsv
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff concoct/meta-sensitive_coassembly/input_kallisto/concoct_inputtableR.tsv
+#--unlock was needed for workfolder
+#check for problems with linefeed
+
+#error with script for cutting up contig, check slurm.outs (from metag_glyph_workflow)
+less concoct/meta-sensitive_coassembly/cutup/contigs_10K.fasta-slurm.out
+less annotation/prokka_extended/prokka_output/megahit_coassembly.0/PROKKA.gff-slurm.out
+
+#kallisto_concoct crashed
+#prokka crashed in the middle
+#checking slurm files
+cd /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/
+less quantification/kallisto/indices/meta-sensitive_coassembly_10K.kaix-slurm.out
+less quantification/kallisto/quant/meta-sensitive_coassembly_10K/samples/A1/abundance.tsv.gz-slurm.out
+#perl missing for prokka?
+source activate snakemake_python2_env && module load bioinfo-tools BioPerl blast/2.2.28+ hmmer prodigal/2.6.3 gnuparallel
+#making subsample for testing
+#mkdir test in annotation
+vim contig_test.fasta
+#copy and paste some contigs into it
+#move into test directory
+mv /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/parts/contig_test.fasta /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/test/
+snakemake --dryrun --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff concoct/meta-sensitive_coassembly/input_kallisto/concoct_inputtableR.tsv
+#snakemake checks by change date which jobs need still to be run, do dryrun to see whether is correct
+#missing package for concoct-inputtableR
+conda install pandas
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 annotation/prokka_extended/prokka_output/megahit_coassembly.{0..6}/PROKKA.gff concoct/meta-sensitive_coassembly/input_kallisto/concoct_inputtableR.tsv
+#some contig parts have different counts for the same main contig, checking with grep over samples
+zegrep "k141_1288\\.[0-2]" < ./A1/abundance.tsv.gz >> compare.tsv
+one pattern for Asamples, reverse for Bsamples
+
+scp -r rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/input_kallisto/*.* .
+
+#download metacyc database
+cd /pica/v14/b2010008_nobackup/database/metacyc
+mkdir metacyc_20.5
+wget http://bioinformatics.ai.sri.com/ecocyc/dist/flatfiles-52983746/meta.tar.gz
+Username: biocyc-flatfiles
+Password: data-20541
+#getting data into uppmax: reversing scp download 
+scp ./meta.tar.gz rene@milou.uppmax.uu.se:/pica/v14/b2010008_nobackup/database/metacyc/metacyc_20.5
+tar -xvzf {file} #for unzipping/tarring
+#checking instruction at https://github.com/johnne/parse-db/tree/master/metacyc
+wget https://raw.githubusercontent.com/johnne/parse-db/master/metacyc/process_metacyc_db.py
+#load python environment
+python process_metacyc_db.py [-h] [-d DATADIR]
+
+
+#switching to python2env, installing concoct
+cd CONCOCT
+source activate snakemake_python2_env
+conda install matplotlib scipy numpy
+python setup.py install
+concoct --help
+
+also installing checkm in python2 env
+conda install checkm-genome
+
+#using grep_for_loop to get one table with ECnumbers out of 7 prokka output folders
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/prokka_extended/prokka_output/PROKKA.* .
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/prokka_extended/prokka_output/megahit_coassembly.0/*.* .
+
+#checking concoct
+snakemake --dryrun --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/clustering.csv
+#this file needs to be zipped:
+concoct/meta-sensitive_coassembly/cutup/contigs_10K.fasta
+gzip contigs_10K.fasta
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv
+#concoct progress
+less /pica/v14/b2010008_nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/log.txt
+#new try of concoct
+source activate snakemake_python3_env
+snakemake --dryrun --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv
+#running on interactive
+interactive -A b2010008 -p core -n 8 -t 3:00:00
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv
+#checkm (run from metag_glyph_workflow)
+source activate snakemake_python2_env && module load bioinfo-tools prodigal/2.6.3 hmmer/3.1b2 MUMmer/3.23
+#needs to have rights for library in /pica/v14/b2010008_nobackup/database/checkm_v1.05, output folder must be empty
+checkm lineage_wf -t 8 -x fa -f concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/all_bins_nocutup concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv .
+
+
+in folder annotation: mkdir minpath
+create link in minpath folder
+ln -s /proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/prokka_extended/prokka_output/PROKKA.ec
+MinPath1.2.py -any PROKKA.ec -map /pica/v14/b2010008_nobackup/database/metacyc/metacyc_20.5/20.5/metacyc.ec2pathcats.tab -report PROKKA.metacyc.minpath > MinPath.Metacyc.PROKKA.log
+#switch to python2env
+export MinPath=/proj/b2010008/src/MinPath
+python /proj/b2010008/src/MinPath/MinPath1.2.py -h
+#keine erlaubnis für minpath
+export MinPath=/proj/b2010008/src/MinPath_common
+python /proj/b2010008/src/MinPath_common/MinPath1.2.py -h
+python /proj/b2010008/src/MinPath_common/MinPath1.2.py -any PROKKA.ec -map /pica/v14/b2010008_nobackup/database/metacyc/metacyc_20.5/20.5/metacyc.ec2pathcats.tab -report PROKKA.metacyc.minpath > MinPath.Metacyc.PROKKA.log
+#trying the old map file from workshop, it works:
+python /proj/b2010008/src/MinPath_common/MinPath1.2.py -any PROKKA.ec -map ~/mg-workshop/reference_db/metacyc/ec.to.pwy -report PROKKA.metacyc.minpath > MinPath.Metacyc.PROKKA.log
+#copy file to pc
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/minpath/PROKKA.metacyc.minpath .
+#columns were switched in new map file
+cd /proj/b2010008/nobackup/database
+chgrp -R b2010008 metacyc/
+python /proj/b2010008/src/MinPath_common/MinPath1.2.py -any PROKKA.ec -map /proj/b2010008/nobackup/database/metacyc/metacyc_20.5/20.5/ec.to.pwy -report PROKKA.metacyc20.5.minpath > MinPath.Metacyc20.5.PROKKA.log
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/minpath/PROKKA.metacyc20.5.minpath .
+#7804,7806,7807 für glyphosate degradation, letzten beiden gefunden, anzahl enzyme checken
+
+#also trying mapping for reads with bowtie2
+snakemake --snakefile snakemake-workflows/workflows/large_coassembly/Snakefile --cluster "Snakefile_sbatch.py {dependencies}" --immediate-submit -j 99 --latency-wait 120 mapping/bowtie2/default/meta-sensitive_megahit_coassembly_contigs/samples/A{1..7}.sorted.bam mapping/bowtie2/default/meta-sensitive_megahit_coassembly_contigs/samples/B{8..10}.sorted.bam
+samtools sort -o A{1..7}.map.sorted.bam -O bam $SAMPLE.map.sam

@@ -1,0 +1,11 @@
+ssh -X rene@milou.uppmax.uu.se
+cd /proj/b2010008/nobackup/projects/rene_roundup/data/reads/
+module load bioinfo-tools
+module load MultiQC
+multiqc -i fastqc_clipped_reads . #title "fastqc_clipped_reads", search in folder
+
+cd ..
+cd ..
+cd ..
+mkdir -p scripts  #creating new folder for scripts
+cd scripts/

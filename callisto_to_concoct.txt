@@ -1,0 +1,2 @@
+#concoct input table
+conc_in<-read.delim(file.choose(),header=T,row.names=1)

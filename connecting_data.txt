@@ -1,0 +1,28 @@
+connecting data: contig ID, what genes on contig, sample ID, quantification per sample, phylogeny of contig and phylogeny of bin,  metaxa with counts
+pathway per sample?
+quantification normalized for sequencing library sizes? check paper
+
+how to combine results:
+
+PROKKA: assigns e.c. numbers to location on contigs with contig ID --> creating pathways with minpath
+#gives e.c. numbers and pathways for the whole coassembly
+
+quantification: 
+Kallisto counts reads to contigs samplewise
+bowtie2 maps reads on contigs samplewise
+
+taxonomy:
+Metaxa2 checks contigs for rRNA-information --> taxonomy of whole coassembly
+
+
+binning:
+concoct puts into bins, checkm tests completeness and contamination. run metaxa or blast on contigs in bin
+bind contain contig ids, search in bin folder for id with tax info?
+task: generate "all-table" that includes information, which contigs "existed" in which sample by subsetting, 
+OR
+several tables that are merged by mapping results per sample
+
+THEN
+count organims/genes (maybe minpath before/after) 
+
+http://userweb.eng.gla.ac.uk/umer.ijaz/bioinformatics/ecological.html

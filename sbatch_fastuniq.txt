@@ -1,0 +1,2 @@
+sbatch FastUniq.sh ../data/reads/AdapterClipped/Sample_A1/A1_R1_clipped.fastq.bz2 ../data/reads/AdapterClipped/Sample_A1/A1_R2_clipped.fastq.bz2
+jobinfo -u rene

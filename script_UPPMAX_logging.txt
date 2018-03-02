@@ -1,0 +1,35 @@
+
+
+#!/bin/bash -l
+
+#SBATCH -A b2010008
+#SBATCH -p node
+#SBATCH -n 16
+#SBATCH -t 12:00:00
+#SBATCH -J glyph_fastuniq
+
+### Logging before job started
+T="$(date +%s)"
+
+echo "## ##"
+echo "## START JOB $SLURM_JOB_ID - $SLURM_JOB_NAME"
+echo "## `date`"
+
+##########
+
+/proj/b2010008/nobackup/bin/
+copy commands from github/fastuniq
+
+
+
+#########
+
+### Logging after job is done
+T="$(($(date +%s)-T))"
+
+# Log finish job
+{
+echo "## `date`"
+printf "## Elapsed time: %02d-%02d:%02d:%02d\n" "$((T/86400))" "$((T/3600%24))" "$((T/60%60))" "$((T%60))"
+echo "## FINISHED JOB $SLURM_JOB_ID - $SLURM_JOB_NAME"
+echo "## ##"

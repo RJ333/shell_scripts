@@ -1,0 +1,32 @@
+local:
+~/MyDocuments/MobaXterm/scripts
+ODER
+/home/mobaxterm/MyDocuments/MobaXterm/scripts/scp_loop.sh
+
+
+#getting data into uppmax: reversing scp download 
+scp ./meta.tar.gz rene@milou.uppmax.uu.se:/pica/v14/b2010008_nobackup/database/metacyc/metacyc_20.5
+
+
+from uppmax:
+/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/assembly/megahit_coassembly/meta-sensitive/
+
+file transfer:
+scp -r rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/taxonomy/metaxa/*.* .
+scp -r rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/input_kallisto/*.* .
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/prokka_extended/prokka_output/PROKKA.* .
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/prokka_extended/prokka_output/megahit_coassembly.0/*.* .
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/checkm_output/stats.tsv .
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/minpath/PROKKA.metacyc20.5.minpath .
+
+#getting concoct output: what contig ids in what bin?
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/concoct/meta-sensitive_coassembly/output_kallisto/cutoff-1000-maxcluster-1000/clustering* .
+
+#getting prokka info: link prokka id to contig id
+bash /home/mobaxterm/MyDocuments/MobaXterm/scripts/scp_loop.sh
+
+#getting minpath (not .minpath file)
+scp rene@milou.uppmax.uu.se:/proj/b2010008/nobackup/projects/rene_roundup/metag_glyph_workflow/annotation/minpath/MinPath.Metacyc20.5.PROKKA.log .
+
+#getting length of contigs
+bash /home/mobaxterm/MyDocuments/MobaXterm/scripts/scp_kallisto_loop.bash

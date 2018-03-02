@@ -1,0 +1,5 @@
+
+mkdir -p /proj/b2014214/nobackup/christin/h2o2_metatrans/clipped/
+
+#home directory changed to local drive metatranscriptome folder:
+scp ./*.* rene@milou.uppmax.uu.se:/proj/b2014214/nobackup/christin/h2o2_metatrans/clipped/

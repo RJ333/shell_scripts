@@ -1,0 +1,25 @@
+#metaxa into excel/R
+#open *.extraction.results in excel as tab-separated
+#checking headers from manual
+#one columns header is not mentioned (between average score and start pos)
+#note to which division (contig pool 0-6) the contigs belong, add to one table
+#important: excel has problems to change between .csv and .tsv, use standard excel sheets for adjusting table
+#no taxonomy included, so do the same with tax files from the contig pools
+#split up taxonomy levels
+#merge on contig name in excel
+
+metaxa_output<-read.csv(file.choose(),sep=";",row.names=1)
+head(metaxa_output)
+str(metaxa_output)
+names(metaxa_output)
+hist(metaxa_output$strand)
+hist(metaxa_output$reliability)
+
+
+with, plot(metaxa_output$class,cex.names=0.5))
+
+
+with(subset(metaxa_output, domain == ), points(weight, Chick, col = "blue"))
+
+euk_sub<-(subset(metaxa_output, metaxa_output$domain == "Eukaryota"))
+plot(euk_sub$order,cex.names=0.5)
