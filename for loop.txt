@@ -1,0 +1,84 @@
+pfad (fastqc)ändern
+bash
+chmod +x
+doppelter pfad durch variable
+nur forward einlesen, rest erledigt der loop
+
+#so direkt in die shell kopieren im ordner, wo sich die daten befinden
+#${i%.join.fna}cut.fna schneidet die endung ".join.fna" von der variablen ab und ersetzt sie durch "cut.fna"
+#341f/805r
+for i in *.join.fna;
+do cutadapt  -o ${i%.join.fna}cut.fna -a ATTAGAWACCCBDGTAGTC$ $i
+done
+
+for i in *cut.fna;
+do cutadapt  -o ${i%cut.fna}both.fna  -g ^CCTACGGGNGGCWGCAG $i
+done
+
+#515f/805r
+for i in *.join.fna;
+do cutadapt  -o ${i%.join.fna}cut.fna  -g ^GTGCCAGCMGCCGCGGTAA $i
+done
+
+
+#!/bin/bash -l
+
+#SBATCH -A g2014180
+#SBATCH -p core
+#SBATCH -n 16
+#SBATCH -t 04:00:00
+#SBATCH -J sickle_sepreads_OSD
+
+source /proj/g2014180/metagenomics/virtenv/bin/activate
+
+FILES= /proj/b2014214/nobackup/ocean_sampling_day/ftp.sra.ebi.ac.uk/vol1/ERA413/ERA413491/fastqc/*_shotgun_raw.fastq.gz
+for file1 in $FILES; do
+	file2="${file1%1_shotgun_raw.fastq.gz}2_shotgun_raw.fastq.gz"
+	out1=/proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/"${file1%shotgun_raw.fastq.gz}sickled25.fastq"
+	out2=/proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/"${file2%shotgun_raw.fastq.gz}sickled25.fastq"
+	single=${file1%1_shotgun_raw.fastq.gz}single.fastq"
+	echo $file1 $file2 $out1 $out2 $single 
+sickle pe -f $file1 -r $file2 -o $out1 -p $out2 -s $single -q 25 -l 25;
+done
+
+
+
+for readfile in reads.*.fastq;
+do sortmerna --reads $readfile --ref $DB --fastx --aligned ${readfile}_rrna -v -a 2;
+done
+
+#!/bin/bash -l
+
+FILES=*1_10M.fastq
+for file1 in $FILES; do woher file1?
+        file2="${file1%1_10M.fastq}2_10M.fastq"
+        out1="${file1%10M.fastq}trim30.fastq"
+        out2="${file2%10M.fastq}trim30.fastq"
+        single="${file1%R1_10M.fastq}single.fastq" nur R1?
+        echo $file1 $file2 $out1 $out2 $single
+        sbatch -A b2010008 -p core -n 1 -t 3:00:00 -J $out1 separate 3h jobs für jede datei?
+--wrap="/proj/b2010008/bin/sickle pe -f $file1 -r $file2 -t sanger -o $out1 -p $out2 -s $single"
+done
+======================
+
+#!/bin/bash -l
+
+FILES=/proj/b2014214/nobackup/ocean_sampling_day/ftp.sra.ebi.ac.uk/vol1/ERA413/ERA413491/fastqc/*_shotgun_raw.fastq.gz
+for file1 in $FILES; do
+        file2="${file1%1_shotgun_raw.fastq.gz}2_shotgun_raw.fastq.gz"
+        out1=/proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/"${file1%shotgun_raw.fastq.gz}sickled25.fastq"
+        out2=/proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/"${file2%shotgun_raw.fastq.gz}sickled25.fastq"
+        single=${file1%1_shotgun_raw.fastq.gz}single.fastq"
+        echo $file1 $file2 $out1 $out2 $single;
+done
+
+Bash has some really ugly syntax, but I think you can understand what happens: on the first 4 lines of the loop, I'm defining the names of variables, by keeping the same root as file1 but changing the termination. Then I print (echo) all of them on screen just as a check. Finally, I launch the job and close the loop.
+
+sickle pe \
+        -f ~/mg-workshop/data/$SAMPLE/reads/1M/${SAMPLE_ID}_1M.1.fastq \
+        -r ~/mg-workshop/data/$SAMPLE/reads/1M/${SAMPLE_ID}_1M.2.fastq \
+        -t sanger \
+        -o /proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/.fastq \
+        -p /proj/b2014214/nobackup/ocean_sampling_day/reads_for_mapping/.fastq \
+        -s ~/mg-workshop/results/quality_check/sickle/$SAMPLE/qtrim.unpaired.fastq \
+        -q 20 -l 20

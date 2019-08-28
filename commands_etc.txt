@@ -1,0 +1,164 @@
+UPPMAX
+
+ssh -X rene@milou.uppmax.uu.se
+oder über gateway
+
+slurm
+
+source for virtual environment
+
+copy to local netbook
+scp -r rene@milou...:~/path/.../*html .
+
+Regarding commands
+
+
+#!/bin/sh am Anfang eines Skripts http://de.wikipedia.org/wiki/Shebang
+Bin ist der Programmordner und Sh oder Bash das Programm
+
+•	ls -l (ll)steht für ausführlichen listbefehl -h für Datengröße (nur Dateien, nicht Ordner)
+•	für Speicherplatz: du -h (disk usage human readable) <folder>
+•	sed http://de.wikipedia.org/wiki/Sed_%28Unix%29
+o	add letter in beginning of file: http://linuxconfig.org/add-character-to-the-beginning-of-each-line-using-sed
+
+•	less um file zu lesen, seitenweise darstellung, sowie zurückblättern, im gegensatz zu more, nur vorwärts blättern, außerdem pg. v drücken für editor, http://www.greenwoodsoftware.com/less/faq.html#what
+
+allgemeine loops z.b.
+•	for xy in $[file,directory, ls *.fastq]; do
+•	cutadapt -a -g --input ${xy} --output out${xy}
+•	done
+
+•	nur erste spalte vor komma behalten: cut -d, -f1 contigs173sorted.csv > contigs173cut.csv
+
+•	sort zum sortieren von listen, -u für nur erste ausgabe von wiederholungen  duplikate entfernen
+•	dateien nach ordnernamen benennen: find . -name 'fastqjoin.join.fastq' -exec bash -c 'd="${1%/*}"; mv "$1" "$d/$d-${1##*/}"' - '{}' \;
+
+parameter     result
+-----------   ------------------------------
+${NAME}       polish.ostrich.racing.champion
+${NAME#*.}           ostrich.racing.champion
+${NAME##*.}                         champion
+${NAME%%.*}   polish
+${NAME%.*}    polish.ostrich.racing
+
+•	R1 gegen R2 tauschen: for file1 in $FILES; do
+	file2="${file1%1_shotgun_raw.fastq.gz}2_shotgun_raw.fastq.gz"
+
+•	Loop für fastaqual 
+#!/bin/bash
+cd ./joined20
+for i in $(ls ./*/*.join.fastq);do
+convert_fastaqual_fastq.py -c fastq_to_fastaqual -f ${i} -o ../splitreads/
+done
+#{i} gibt anscheinend direkt vollständigen pfad für input an
+
+•	redirection: http://www.tutorialspoint.com/unix/unix-io-redirections.htm
+
+•	mkdir: neuen ordner erstellen, rmdir ordner löschen, function –p / --parents erstellt zwischenordner, funktioniert auch bei cp –p tmp z.B.
+
+•	touch and copy
+touch /home/peter/status/2007/november/nov12.txt #creates empty file
+cd /home/peter
+cp --parents status/2007/november/nov12.txt /home/peter/tmp
+The --parents flag will cause the full path to be copied to tmp ("status/2007/november/nov12.txt")
+
+•	chmod für berechtigungen x w r
+
+•	find + exec http://www.ling.ohio-state.edu/~kyoon/tts/unix-help/unix-find-command-examples.htm
+
+•	ls –l | wc –l: ls erstellt eine liste, wc zählt einträge dieser liste, in diesem fall (-l) lines (gibt bei ls –l eine zeile zu viel an: summary line)
+
+•	pwd print working directory, zeigt aktuellen Pfad an
+
+•	grep –e „,173“ ./clustering_xy > clustering173.csv sucht alle Zeilen mit ,173 aus der Datei clustering_xy und schreibt sie in clustering173.csv
+
+•	sort –d /-n clustering173.csv > clustering173sorted.csv sortiert den Inhalt alphanumerisch/numerisch und schreibt ihn in eine neue Datei
+
+•	wget zum Runterladen http://www.gnu.org/software/wget/
+
+•	For .tar.gz, you can use "tar zxvf filename.tar.gz" (without the quotes), if it's just .gz, you may have to use the gunzip command
+
+•	$ R CMD INSTALL mypkg -l /my/own/R-packages/
+
+
+•  extract the files with one of the commands
+•	If it's tar.gz use tar xvzf PACKAGENAME.tar.gz
+•	if it's a tar.bz2 use tar xvjf PACKAGENAME.tar.bz2
+	./configure
+	make 
+	sudo make install
+
+•	zcat/cat to schreiben or view/open files or zipped files http://www.linfo.org/cat.html
+
+•	zcat <file1> <file2> … >| head -n <4xnumberoffastqreads> > outputfile.fastq
+
+•	head to print a specific number of lines of these files (for subsampling or merging)
+
+•	tail -? (anzahl der darzustellenden zeilen vom seitenende) oder shift + g für das ende einer langen datei
+
+•	du -h steht für disk usage, am besten in datei ausgeben
+
+•	http://steve-parker.org/sh/test.shtml
+
+•	$COUNTER -lt 10 bedeutet variable less than 10 
+
+•	bash –version
+
+•	letzte modifizierte datei: find . -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "
+cut ist dabei für den timestamp, sort –n für numerisch sortieren
+
+•	xterm in mobaxterm um parallelen Kanal aufzumachen: wenn dort programm abstürzt, ist nicht die verbindung hinüber
+•	htop: zeigt nutzung der kerne, nutzer etc an
+
+
+Regarding programs
+
+
+•	editoren nano, ed, vi, vim
+•	
+•	ray: http://denovoassembler.sourceforge.net/manual.html
+
+•	fastqc http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/ 
+
+•	cutadapt: http://www.ark-genomics.org/events-online-training-eu-training-course/adapter-and-quality-trimming-illumina-data
+
+•	phylosift https://github.com/gjospin/PhyloSift/blob/master/README
+
+•	https://concoct.readthedocs.org/en/latest/complete_example.html basen in contigs länger als 1000 werden berücksichtigt, für assemstats script muss richtiges modul geladen sein, tutorial online readthedocs, gute coverage berechnet
+
+regarding background
+
+•	große oder kleine kmers http://en.wikipedia.org/wiki/K-mer
+•	oftmals werden verschiedene kmers ausprobiert und die entstehenden contigs als long reads mit 454 assembler zusammengesetzt
+
+•	Bowtie2: http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+•	picard http://sourceforge.net/projects/picard/
+
+Regarding misc
+
+
+•	Question: What are the important length statistics? Do we prefer sum over length? Should it be a combination?
+•	Question: How do Ray’s results compare to those from Velvet?
+
+•	omictools.com
+•	github
+•	coverage: http://ivory.idyll.org/blog/how-much-sequencing-is-needed.html
+•	http://en.wikipedia.org/wiki/Shotgun_sequencing#Coverage
+
+•	gff-format: http://genome.ucsc.edu/FAQ/FAQformat.html#format3
+•	SAM/BAM: http://genome.sph.umich.edu/wiki/SAM
+•	pcr duplicates: http://seqanswers.com/forums/showthread.php?t=6854 http://www.cureffi.org/2012/12/11/how-pcr-duplicates-arise-in-next-generation-sequencing/
+
+tasks
+
+•	search commands "sed, grep, egrep, find"
+•	good values for metagenomic assembly?
+•	inos masters thesis
+•	proper allocation of computational capacities
+•	preparing OSD data
+•	assembling genome (concoct, groopm)
+•	binning
+•	answer all questions from the workshop
+•	http://www.nature.com/nprot/journal/v6/n7/full/nprot.2011.345.html
+•	Reading the papers regarding bioinformatic
+

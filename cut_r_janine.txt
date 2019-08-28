@@ -1,0 +1,4 @@
+#!/bin/bash
+	for xy in $(ls *.fna); do 
+	cutadapt -a TTAAAGGAATTGGCGGG ${xy} -o out${xy}
+	done
